@@ -5,7 +5,7 @@ class FindWord():
 	def __init__(self):
 		# Start argparse
 		ap = argparse.ArgumentParser('A tool to search for a word or filename in a set of files. It scans the directory it\'s in recursively, which might be resource intensive. A word or filename must be provided, to search for nameless extensions (such as .gitignore) simply use the extension as the filename.')
-		ap.add_argument('--ext', metavar="extension", help = 'The extension of the filetype we\'re searching. If not provided it will search ALL files, which will take longer and include binaries that you probably won\'t be able to read.', default='')
+		ap.add_argument('--ext', metavar="extension", help = 'The extension of the filetype we\'re searching. If not provided it will search ALL files, which will take longer and include binaries that you probably won\'t be able to read. \nIf you only want to search for words in a specific file, put the filename here.', default='')
 		ap.add_argument('--w', metavar="word", help='The term to search for.', default='')
 		ap.add_argument('--f', metavar="filename", help='A word we want to find in the filename', default='')
 		ap.add_argument('--case_insensitive', help='Make the tool not care about the case of the word/file wer\'re looking for', default=False, action='store_const', const=True)
