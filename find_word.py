@@ -5,9 +5,9 @@ class FindWord():
 	def __init__(self):
 		# Start argparse
 		ap = argparse.ArgumentParser('A tool to search for a word or filename in a set of files. It scans the directory it\'s in recursively, which might be resource intensive. A word or filename must be provided, to search for nameless extensions (such as .gitignore) simply use the extension as the filename.')
-		ap.add_argument('--extension', help = 'The extension of the filetype we\'re searching. If not provided it will search ALL files, which will take longer.', default='')
-		ap.add_argument('--w', help='The term to search for.', default='')
-		ap.add_argument('--f', help='A word we want to find', default='')
+		ap.add_argument('--ext', metavar="extension", help = 'The extension of the filetype we\'re searching. If not provided it will search ALL files, which will take longer and include binaries that you probably won\'t be able to read.', default='')
+		ap.add_argument('--w', metavar="word", help='The term to search for.', default='')
+		ap.add_argument('--f', metavar="filename", help='A word we want to find in the filename', default='')
 		ap.add_argument('--case_insensitive', help='Make the tool not care about the case of the word/file wer\'re looking for', default=False, action='store_const', const=True)
 		args = ap.parse_args()
 
@@ -18,7 +18,7 @@ class FindWord():
 		self.word = args.w
 		self.filename = args.f
 		self.case_insensitive = args.case_insensitive
-		self.ext = args.extension
+		self.ext = args.ext
 
 		# Check that a word/filename has been passed
 		if(not (self.word or self.filename or self.ext)):
@@ -51,7 +51,6 @@ class FindWord():
 		for f in files:
 			if(path):
 				f = join(path,f)
-
 			# Checks if it's a file, if not appends to directories
 			if isfile(f):
 				# If we have an extension we check that the file has said extension, if not we append the file
