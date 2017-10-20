@@ -16,7 +16,7 @@ class FindWord():
         self.parse_args(args)
         only_files = []
 
-        only_files.extend(self.get_files('', extension=self.ext))
+        only_files.extend(self.get_files(self.dir, extension=self.ext))
         # Cicle through and traverse dirs
         while len(self.dirs):
             d = self.dirs.pop()
@@ -54,6 +54,9 @@ class FindWord():
         ap.add_argument('--case_insensitive', help='Make the tool not care '
                         'about the case of the word/file we\'re looking for',
                         default=False, action='store_const', const=True)
+        ap.add_argument('--dir', help='Search in the specified directory',
+                        default='')
+
         self.ap = ap
         args = ap.parse_args(args)
 
@@ -62,6 +65,7 @@ class FindWord():
         self.filename = args.f
         self.case_insensitive = args.case_insensitive
         self.ext = args.ext
+        self.dir = args.dir
 
         # Check that a search term has been passed, if not print help and exit
         if(not (self.word or self.filename or self.ext)):
