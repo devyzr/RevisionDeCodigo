@@ -24,6 +24,10 @@ class FindWord():
 
         locations = self.get_locations(only_files)
 
+        for elem in self.ignore:
+            if elem:
+                locations = self.remove_locs(locations, elem)
+
         if len(locations):
             for l in locations:
                 print(l)
@@ -56,6 +60,8 @@ class FindWord():
                         default=False, action='store_const', const=True)
         ap.add_argument('--dir', help='Search in the specified directory',
                         default='')
+        ap.add_argument('--ignore', help='A string we want to ignore in the '
+                        'filename', default='')
 
         self.ap = ap
         args = ap.parse_args(args)
@@ -66,6 +72,10 @@ class FindWord():
         self.case_insensitive = args.case_insensitive
         self.ext = args.ext
         self.dir = args.dir
+        if args.ignore:
+            self.ignore = args.ignore.split(',')
+        else:
+            self.ignore = ['']
 
         # Check that a search term has been passed, if not print help and exit
         if(not (self.word or self.filename or self.ext)):
@@ -133,6 +143,17 @@ class FindWord():
                             loc = base_loc + ':' + str(x)
                             locations.append(loc)
         return locations
+
+    # A method that will go through the list and remove any item
+    # that contains the discriminator
+    def remove_locs(self, list, discriminator):
+        clean_list = []
+        for elem in list:
+            base_elem = elem.split('\\')[-1]
+            base_elem = base_elem.split(':')[0]
+            if discriminator not in base_elem:
+                clean_list.append(elem)
+        return clean_list
 
 
 if __name__ == '__main__':
