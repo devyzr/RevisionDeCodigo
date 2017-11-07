@@ -61,7 +61,8 @@ class FindWord():
         ap.add_argument('--dir', help='Search in the specified directory',
                         default='')
         ap.add_argument('--ignore', help='A string we want to ignore in the '
-                        'filename', default='')
+                        'filename, we can ignore many strings if we separate'
+                        'them with commas', default='')
 
         self.ap = ap
         args = ap.parse_args(args)
