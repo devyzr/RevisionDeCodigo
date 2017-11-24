@@ -41,28 +41,28 @@ class FindWord():
                          'files. It scans the directory it\'s in recursively, '
                          'which might be resource intensive. A word or '
                          'filename must be provided, to search for nameless '
-                         'extensions (such as .gitignore) simply use the '
-                         'extension as the filename.')
+                         'extensions (such as .gitignore) simply use --ext '
+                         'to search.')
         ap = argparse.ArgumentParser(argparse_text)
-        ap.add_argument('--ext', metavar="extension", help='The extension'
+        ap.add_argument('--w', metavar="word", help='The word to search for.',
+                        default='')
+        ap.add_argument('--f', metavar="filename",
+                        help='A word we want to find in the filename.',
+                        default='')
+        ap.add_argument('--ext', metavar="extension", help='The extension '
                         'of the filetype we\'re searching. If not provided it'
-                        'will search ALL files, which will take longer and '
+                        ' will search ALL files, which will take longer and '
                         'include binaries that you probably won\'t be able to'
                         ' read. \nIf you only want to search for words in a '
                         'specific file, put the filename here.', default='')
-        ap.add_argument('--w', metavar="word", help='The term to search for.',
-                        default='')
-        ap.add_argument('--f', metavar="filename",
-                        help='A word we want to find in the filename',
-                        default='')
         ap.add_argument('--case_insensitive', help='Make the tool not care '
-                        'about the case of the word/file we\'re looking for',
+                        'about the case of the word/file we\'re looking for.',
                         default=False, action='store_const', const=True)
-        ap.add_argument('--dir', help='Search in the specified directory',
+        ap.add_argument('--dir', help='Search in the specified directory.',
                         default='')
         ap.add_argument('--ignore', help='A string we want to ignore in the '
                         'filename, we can ignore many strings if we separate'
-                        'them with commas', default='')
+                        'them with commas.', default='')
 
         self.ap = ap
         args = ap.parse_args(args)
@@ -79,7 +79,7 @@ class FindWord():
             self.ignore = ['']
 
         # Check that a search term has been passed, if not print help and exit
-        if(not (self.word or self.filename or self.ext)):
+        if(not (self.word or self.filename)):
             self.ap.print_help()
             return None
 
