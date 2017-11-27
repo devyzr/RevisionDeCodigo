@@ -1,6 +1,8 @@
 import os
 import argparse
 import sys
+import re
+
 from os.path import isfile, join
 
 
@@ -29,6 +31,7 @@ class FindWord():
                 locations = self.remove_locs(locations, elem)
 
         if len(locations):
+            print('')
             for l in locations:
                 print(l)
         else:
@@ -39,21 +42,22 @@ class FindWord():
     def parse_args(self, args):
         argparse_text = ('A tool to search for a word or filename in a set of '
                          'files. It scans the directory it\'s in recursively, '
-                         'which might be resource intensive. A word or '
-                         'filename must be provided, to search for nameless '
-                         'extensions (such as .gitignore) simply use --ext '
-                         'to search.')
+                         'which might be resource intensive. A word, filename '
+                         'or regex must be provided.')
         ap = argparse.ArgumentParser(argparse_text)
-        ap.add_argument('--w', metavar="word", help='The word to search for.',
+        ap.add_argument('--w', metavar='word', help='The word to search for.',
                         default='')
-        ap.add_argument('--f', metavar="filename",
+        ap.add_argument('--f', metavar='filename',
                         help='A word we want to find in the filename.',
                         default='')
-        ap.add_argument('--ext', metavar="extension", help='The extension '
-                        'of the filetype we\'re searching. If not provided it'
-                        ' will search ALL files, which will take longer and '
-                        'include binaries that you probably won\'t be able to'
-                        ' read. \nIf you only want to search for words in a '
+        # ToDo: Add filename regex.
+        ap.add_argument('--regex', help='A regex to search for inside a file',
+                        default='')
+        ap.add_argument('--ext', metavar='extension', help='The extension '
+                        'of the filetype we\'re searching. If not provided it '
+                        'will search ALL files, which will take longer and '
+                        'include binaries that you probably won\'t be able to '
+                        'read. \nIf you only want to search for words in a '
                         'specific file, put the filename here.', default='')
         ap.add_argument('--case_insensitive', help='Make the tool not care '
                         'about the case of the word/file we\'re looking for.',
@@ -61,8 +65,12 @@ class FindWord():
         ap.add_argument('--dir', help='Search in the specified directory.',
                         default='')
         ap.add_argument('--ignore', help='A string we want to ignore in the '
-                        'filename, we can ignore many strings if we separate'
+                        'filename, we can ignore many strings if we separate '
                         'them with commas.', default='')
+        ap.add_argument('--print_lines', help='Print the line that coincides '
+                        'with the search term.', default=False,
+                        action='store_const', const=True)
+        # test aa2
 
         self.ap = ap
         args = ap.parse_args(args)
@@ -73,13 +81,21 @@ class FindWord():
         self.case_insensitive = args.case_insensitive
         self.ext = args.ext
         self.dir = args.dir
+        self.print_lines = args.print_lines
+
+        if args.regex:
+            print(args.regex)
+            self.regex = re.compile(args.regex)
+        else:
+            self.regex = False
+
         if args.ignore:
             self.ignore = args.ignore.split(',')
         else:
             self.ignore = ['']
 
         # Check that a search term has been passed, if not print help and exit
-        if(not (self.word or self.filename)):
+        if(not (self.word or self.filename or self.regex)):
             self.ap.print_help()
             return None
 
@@ -119,6 +135,7 @@ class FindWord():
         if case_insensitive:
             self.case_insensitive = case_insensitive
 
+        # file is the whole filename including directory
         locations = []
         for file in only_files:
             base_loc = str(file)
@@ -131,19 +148,44 @@ class FindWord():
             if(self.filename and self.filename in file):
                 locations.append(base_loc)
             # Check if the user queried for a word.
-            if self.word:
-                x = 0
-                with open(file, 'r', encoding='latin-1') as o_file:
-                    for line in o_file:
-                        if(self.case_insensitive):
-                            line = line.upper()
-                        # A counter to find the line
-                        x += 1
-                        # Check if word exists and if it's in the line.
-                        if(self.word and self.word in line):
+            x = 0
+            with open(file, 'r', encoding='latin-1') as o_file:
+                self.prev_line = 0
+                for line in o_file:
+                    if(self.case_insensitive):
+                        line = line.upper()
+                    # A counter to find the line
+                    x += 1
+                    # Check if word exists and if it's in the line.
+                    if(self.word and self.word in line):
+                        loc = base_loc + ':' + str(x)
+                        locations.append(loc)
+                        if(self.print_lines):
+                            self.print_results(loc, line, x)
+
+                    # Check for regex matches
+                    if(self.regex):
+                        if(self.regex.search(line)):
                             loc = base_loc + ':' + str(x)
                             locations.append(loc)
+                            if(self.print_lines):
+                                self.print_results(loc, line, x)
+
         return locations
+
+    # A method to avoid rewriting code that lets us print
+    # the lines of results we find.
+    def print_results(self, l_location, l_content, current_l):
+        line_difference = current_l - self.prev_line
+        if(self.prev_line != 0 and line_difference == 1):
+            print(l_content.strip())
+        else:
+            print('\n%s' % l_location)
+            print(l_content.strip())
+        self.prev_line = current_l
+
+    def find_regex(self, regex):
+        pass
 
     # A method that will go through the list and remove any item
     # that contains the discriminator
