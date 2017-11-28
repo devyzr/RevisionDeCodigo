@@ -21,19 +21,17 @@ class FindWord():
         only_files.extend(self.get_files(self.dir, extension=self.ext))
         # Cicle through and traverse dirs
         while len(self.dirs):
-            d = self.dirs.pop()
-            only_files.extend(self.get_files(d, self.ext))
+            current_dir = self.dirs.pop()
+            only_files.extend(self.get_files(current_dir, self.ext))
 
         locations = self.get_locations(only_files)
 
-        for elem in self.ignore:
-            if elem:
-                locations = self.remove_locs(locations, elem)
-
         if len(locations):
-            print('')
-            for l in locations:
-                print(l)
+            if(self.print_lines):
+                pass
+            else:
+                for l in locations:
+                    print(l)
         else:
             print('Nothing found')
             return None
@@ -70,7 +68,6 @@ class FindWord():
         ap.add_argument('--print_lines', help='Print the line that coincides '
                         'with the search term.', default=False,
                         action='store_const', const=True)
-        # test aa2
 
         self.ap = ap
         args = ap.parse_args(args)
@@ -84,7 +81,6 @@ class FindWord():
         self.print_lines = args.print_lines
 
         if args.regex:
-            print(args.regex)
             self.regex = re.compile(args.regex)
         else:
             self.regex = False
@@ -138,6 +134,9 @@ class FindWord():
         # file is the whole filename including directory
         locations = []
         for file in only_files:
+            if self.ignore != ['']:
+                if any(bad_ext in file for bad_ext in self.ignore):
+                    continue
             base_loc = str(file)
             if(self.case_insensitive):
                 file = file.upper()
@@ -176,27 +175,18 @@ class FindWord():
     # A method to avoid rewriting code that lets us print
     # the lines of results we find.
     def print_results(self, l_location, l_content, current_l):
+        text = l_content.strip()
+        text = text.encode(sys.stdout.encoding, errors='replace')
         line_difference = current_l - self.prev_line
         if(self.prev_line != 0 and line_difference == 1):
-            print(l_content.strip())
+            print(text)
         else:
             print('\n%s' % l_location)
-            print(l_content.strip())
+            print(text)
         self.prev_line = current_l
 
     def find_regex(self, regex):
         pass
-
-    # A method that will go through the list and remove any item
-    # that contains the discriminator
-    def remove_locs(self, list, discriminator):
-        clean_list = []
-        for elem in list:
-            base_elem = elem.split('\\')[-1]
-            base_elem = base_elem.split(':')[0]
-            if discriminator not in base_elem:
-                clean_list.append(elem)
-        return clean_list
 
 
 if __name__ == '__main__':
