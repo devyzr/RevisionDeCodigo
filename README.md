@@ -65,4 +65,4 @@ Remember to double escape your backslashes unless they're escaping double quotes
 }
 ```
 
-The 'presets.json' file doesn't need to be present to use the standalone script.
+The 'presets.json' file doesn't need to be present to use the script.
