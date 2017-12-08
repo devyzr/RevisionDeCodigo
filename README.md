@@ -45,6 +45,8 @@ optional arguments:
 #### Notes:
 Searching for words, filenames, regexes or regex presets is mutually exclusive. We can include a regex preset instead of a regex.
 
+**'--print_lines'** is really useful combined with the **'>'** or **'>>'** windows operators, allowing us to either write a file with the command's output as the content or append the output to an existing file, respectively.
+
 If we only want to search inside a filename with a specific name we can use the **'--ext'** argument, since it only checks that the string provided is in the filename, which might not as strict as desireable, but gives us some flexibility.
 
 **'--ignore'** only works on filenames.
