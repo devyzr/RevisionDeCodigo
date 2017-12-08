@@ -2,6 +2,7 @@ import os
 import argparse
 import sys
 import re
+import json
 
 from os.path import isfile, join
 
@@ -40,18 +41,23 @@ class FindWord():
     def parse_args(self, args):
         argparse_text = ('A tool to search for a word or filename in a set of '
                          'files. It scans the directory it\'s in recursively, '
-                         'which might be resource intensive. A word, filename '
-                         'or regex must be provided.')
+                         'which might be resource intensive. A word, filename,'
+                         ' regex or regex preset must be provided.')
         ap = argparse.ArgumentParser(argparse_text)
-        ap.add_argument('--w', metavar='word', help='The word to search for.',
+        ap.add_argument('--w', metavar='WORD', help='The word to search for.',
                         default='')
-        ap.add_argument('--f', metavar='filename',
+        ap.add_argument('--f', metavar='FILENAME',
                         help='A word we want to find in the filename.',
                         default='')
         # ToDo: Add filename regex.
         ap.add_argument('--regex', help='A regex to search for inside a file',
-                        default='')
-        ap.add_argument('--ext', metavar='extension', help='The extension '
+                        default='', metavar='REGULAR_EXPRESSION')
+        ap.add_argument('--reg_preset', help='A series of regex presets, '
+                        'currently has internal support for \'java_sql\','
+                        'additional presets can be loaded from the \'presets'
+                        '.json\' file. You can add presets as well.',
+                        metavar='PRESET_NAME')
+        ap.add_argument('--ext', metavar='EXTENSION', help='The extension '
                         'of the filetype we\'re searching. If not provided it '
                         'will search ALL files, which will take longer and '
                         'include binaries that you probably won\'t be able to '
@@ -61,10 +67,11 @@ class FindWord():
                         'about the case of the word/file we\'re looking for.',
                         default=False, action='store_const', const=True)
         ap.add_argument('--dir', help='Search in the specified directory.',
-                        default='')
+                        default='', metavar='PATH_NAME')
         ap.add_argument('--ignore', help='A string we want to ignore in the '
                         'filename, we can ignore many strings if we separate '
-                        'them with commas.', default='')
+                        'them with commas.', default='',
+                        metavar='IGNORE_STRING')
         ap.add_argument('--print_lines', help='Print the line that coincides '
                         'with the search term.', default=False,
                         action='store_const', const=True)
@@ -80,7 +87,9 @@ class FindWord():
         self.dir = args.dir
         self.print_lines = args.print_lines
 
-        if args.regex:
+        if args.reg_preset:
+            self.regex = self.get_preset(args.reg_preset)
+        elif args.regex:
             self.regex = re.compile(args.regex)
         else:
             self.regex = False
@@ -185,8 +194,34 @@ class FindWord():
             print(text)
         self.prev_line = current_l
 
-    def find_regex(self, regex):
-        pass
+    def get_preset(self, preset_option):
+        preset_dict = {'java_sql': '\".*(select|SELECT|insert|INSERT|where|'
+                       'WHERE|delete|DELETE|update|UPDATE|from|FROM|join|JOIN'
+                       '|like|LIKE|upper\(|UPPER\(|order\ by|ORDER\ BY|case|'
+                       'CASE|when|WHEN|then|THEN|else|ELSE).*\"'}
+
+        preset_json = {}
+        json_filename = 'presets.json'
+        if (os.path.isfile(json_filename) and
+                os.stat(json_filename).st_size != 0):
+            with open(json_filename, 'r') as json_file:
+                preset_json = json.load(json_file)
+                for key, val in preset_json.items():
+                    preset_json[key] = val.replace('\\\\', '\\')
+            preset_dict = {**preset_dict, **preset_json}
+
+        if preset_option not in preset_dict:
+            print('Coulnd\'t find \'%s\', available presets are:'
+                  % preset_option)
+            for preset in preset_dict:
+                print('>>> %s' % preset)
+                print(preset_dict[preset])
+                print()
+            sys.exit()
+        else:
+            raw_regex = preset_dict[preset_option]
+            regex = re.compile(raw_regex)
+        return regex
 
 
 if __name__ == '__main__':
