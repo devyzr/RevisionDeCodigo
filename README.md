@@ -45,14 +45,14 @@ optional arguments:
 #### Notes:
 Searching for words, filenames, regexes or regex presets is mutually exclusive. We can include a regex preset instead of a regex.
 
-If we only want to search inside a filename with a specific name we can use the '--ext' argument, since it only checks that the string provided is in the filename, which might not as strict as desireable, but gives us some flexibility.
+If we only want to search inside a filename with a specific name we can use the **'--ext'** argument, since it only checks that the string provided is in the filename, which might not as strict as desireable, but gives us some flexibility.
 
-'--ignore' only works on filenames.
+**'--ignore'** only works on filenames.
 
 
 ### Regex Presets
 
-Presets can be useful in case we repeatedly need to use a regex or it's not possible for us to input it via the command line due to special symbols. Simply add the presets filename and the regex in JSON notation into the 'presets.json' file. The file doesn't need to be present, this allows us to copy/paste the script to wherever we need to use it.
+Presets can be useful in case we repeatedly need to use a regex or it's not possible for us to input it via the command line due to special symbols. Simply add the presets filename and the regex in JSON notation into the **'presets.json'** file. The file doesn't need to be present, this allows us to copy/paste the script to wherever we need to use it.
 
 
 Remember to double escape your backslashes unless they're escaping double quotes. Here we escape spaces:
