@@ -52,10 +52,12 @@ class FindWord():
         # ToDo: Add filename regex.
         ap.add_argument('--regex', help='A regex to search for inside a file',
                         default='', metavar='REGULAR_EXPRESSION')
-        ap.add_argument('--reg_preset', help='A series of regex presets, '
+        ap.add_argument('--regex_preset', help='A series of regex presets, '
                         'currently has internal support for \'java_sql\','
                         'additional presets can be loaded from the \'presets'
-                        '.json\' file. You can add presets as well.',
+                        '.json\' file. You can add presets as well. You can'
+                        'see the available presets by using \'print_presets\''
+                        ' as the preset name.',
                         metavar='PRESET_NAME')
         ap.add_argument('--ext', metavar='EXTENSION', help='The extension '
                         'of the filetype we\'re searching. If not provided it '
@@ -87,8 +89,8 @@ class FindWord():
         self.dir = args.dir
         self.print_lines = args.print_lines
 
-        if args.reg_preset:
-            self.regex = self.get_preset(args.reg_preset)
+        if args.regex_preset:
+            self.regex = self.get_preset(args.regex_preset)
         elif args.regex:
             self.regex = re.compile(args.regex)
         else:
@@ -195,6 +197,8 @@ class FindWord():
         self.prev_line = current_l
 
     def get_preset(self, preset_option):
+        # A dict of presets that are commonly used, to avoid having to copy
+        # presets.json
         preset_dict = {'java_sql': '\".*(select|SELECT|insert|INSERT|where|'
                        'WHERE|delete|DELETE|update|UPDATE|from|FROM|join|JOIN'
                        '|like|LIKE|upper\(|UPPER\(|order\ by|ORDER\ BY|case|'
@@ -206,9 +210,15 @@ class FindWord():
                 os.stat(json_filename).st_size != 0):
             with open(json_filename, 'r') as json_file:
                 preset_json = json.load(json_file)
-                for key, val in preset_json.items():
-                    preset_json[key] = val.replace('\\\\', '\\')
             preset_dict = {**preset_dict, **preset_json}
+
+        if preset_option == 'print_presets':
+            print('Available presets are:')
+            for preset in preset_dict:
+                print('>>> %s' % preset)
+                print(preset_dict[preset])
+                print()
+            sys.exit()
 
         if preset_option not in preset_dict:
             print('Coulnd\'t find \'%s\', available presets are:'

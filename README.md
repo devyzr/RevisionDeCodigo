@@ -27,7 +27,8 @@ optional arguments:
                         A series of regex presets, currently has internal
                         support for 'java_sql',additional presets can be
                         loaded from the 'presets.json' file. You can add
-                        presets as well.
+                        presets as well. You cansee the available presets by
+                        using 'print_presets' as the preset name.
   --ext EXTENSION       The extension of the filetype we're searching. If not
                         provided it will search ALL files, which will take
                         longer and include binaries that you probably won't be
@@ -57,11 +58,11 @@ If we only want to search inside a filename with a specific name we can use the 
 Presets can be useful in case we repeatedly need to use a regex or it's not possible for us to input it via the command line due to special symbols. Simply add the presets filename and the regex in JSON notation into the **'presets.json'** file. The file doesn't need to be present, this allows us to copy/paste the script to wherever we need to use it.
 
 
-Remember to double escape your backslashes unless they're escaping double quotes. Here we escape spaces:
+Remember to double escape your backslashes and triple escape double quotes (to escape the backslash and then the double quote). For example:
 
 ```
 {
-    "example":"\"(\\ a\\ |b|\\ c\\ )\""
+    "example":"\\\"(\\ a\\ |b|\\ c\\ )\\\""
 }
 ```
 
