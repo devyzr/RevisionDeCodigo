@@ -156,7 +156,10 @@ class FindWord():
                 self.word = self.word.upper()
             # Check if filename exists and if it's in file
             if(self.filename and self.filename in file):
-                locations.append(base_loc)
+                if not self.word:
+                    locations.append(base_loc)
+            elif(self.filename and self.word):
+                continue
             # Check if the user queried for a word.
             x = 0
             with open(file, 'r', encoding='latin-1') as o_file:
@@ -202,7 +205,8 @@ class FindWord():
         preset_dict = {'java_sql': '\".*(select|SELECT|insert|INSERT|where|'
                        'WHERE|delete|DELETE|update|UPDATE|from|FROM|join|JOIN'
                        '|like|LIKE|upper\(|UPPER\(|order\ by|ORDER\ BY|case|'
-                       'CASE|when|WHEN|then|THEN|else|ELSE).*\"'}
+                       'CASE|when|WHEN|then|THEN|else|ELSE|ltrim|LTRIM|rtrim'
+                       '|RTRIM|and|AND).*\"'}
 
         preset_json = {}
         json_filename = 'presets.json'
