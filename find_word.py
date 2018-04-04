@@ -50,7 +50,9 @@ class FindWord():
                         help='A word we want to find in the filename.',
                         default='')
         # ToDo: Add filename regex.
-        ap.add_argument('--regex', help='A regex to search for inside a file',
+        ap.add_argument('--regex', help='A regex to search for inside a file. '
+                        'Remember that the script searches line by line, '
+                        'meaning multi-line regexes won\'t work.',
                         default='', metavar='REGULAR_EXPRESSION')
         ap.add_argument('--regex_preset', help='A series of regex presets, '
                         'currently has internal support for \'java_sql\','
@@ -156,8 +158,13 @@ class FindWord():
                 self.word = self.word.upper()
             # Check if filename exists and if it's in file
             if(self.filename and self.filename in file):
+                # Won't add file to list if there is a word.
+                # This is to avoid duplicates. Hacky, I know.
                 if not self.word:
-                    locations.append(base_loc)
+                    # Split to only search filename.
+                    file_parts = file.split(os.sep)
+                    if self.filename in file_parts[-1]:
+                        locations.append(base_loc)
             elif(self.filename and self.word):
                 continue
             # Check if the user queried for a word.
@@ -206,7 +213,29 @@ class FindWord():
                        'WHERE|delete|DELETE|update|UPDATE|from|FROM|join|JOIN'
                        '|like|LIKE|upper\(|UPPER\(|order\ by|ORDER\ BY|case|'
                        'CASE|when|WHEN|then|THEN|else|ELSE|ltrim|LTRIM|rtrim'
-                       '|RTRIM|and|AND).*\"'}
+                       '|RTRIM|and|AND|SYSDATE|sysdate|VALUES|values).*\"',
+                       # Python danger words
+                       'danger_noodle': '(subprocess|system|popen|exec|'
+                       'eval|pickle|shelve|yaml|sqlite3|pypyodbc|logging|'
+                       'print|jsonpickle|open|tarfile|zipfile|file|urlib2|'
+                       'socket|fork|kill|getattr|setattr|delattr|execfile|'
+                       '__import__|path|modules|spawn|popen2|commands|input|'
+                       'get|post|(commands\.)*getoutput|(commands\.)*getoutput'
+                       '|(commands\.)*getstatus|(commands\.)*getstatusouput|'
+                       'compile|(cPickle\.)*load|(cPickle\.)*loads|'
+                       '(marshal\.)*load|(marshal\.)*loads|(os\.)*execl|'
+                       '(os\.)*execle|(os\.)*execlp|'
+                       '(os\.)*execlpe|(os\.)*execv|(os\.)*execve|'
+                       '(os\.)*execvp|(os\.)*execvpe|(os\.)*popen|'
+                       '(os\.)*popen2|(os\.)*popen3|(os\.)*popen4|'
+                       '(os\.)*spawnl|(os\.)*spawnle|(os\.)*spawnlp|'
+                       '(os\.)*spawnlpe|(os\.)*spawnv|(os\.)*spawnve|'
+                       '(os\.)*spawnvp|(os\.)*spawnvpe|(os\.)*startfile|'
+                       '(os\.)*system|(pickle\.)*load|(pickle\.)*loads|'
+                       '(popen2\.)*popen2|(popen2\.)*popen3|(popen2\.)*popen4'
+                       '|(shelve\.)*open|(subprocess\.)*call|'
+                       '(subprocess\.)*check_call|(subprocess\.)*check_output'
+                       '|(subprocess\.)*Popen|(yaml\.)*load)'}
 
         preset_json = {}
         json_filename = 'presets.json'
