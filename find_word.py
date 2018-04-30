@@ -209,33 +209,37 @@ class FindWord():
     def get_preset(self, preset_option):
         # A dict of presets that are commonly used, to avoid having to copy
         # presets.json
-        preset_dict = {'java_sql': '\".*(select|SELECT|insert|INSERT|where|'
-                       'WHERE|delete|DELETE|update|UPDATE|from|FROM|join|JOIN'
-                       '|like|LIKE|upper\(|UPPER\(|order\ by|ORDER\ BY|case|'
-                       'CASE|when|WHEN|then|THEN|else|ELSE|ltrim|LTRIM|rtrim'
-                       '|RTRIM|and|AND|SYSDATE|sysdate|VALUES|values).*\"',
-                       # Python danger words
-                       'danger_noodle': '(subprocess|system|popen|exec|'
-                       'eval|pickle|shelve|yaml|sqlite3|pypyodbc|logging|'
-                       'print|jsonpickle|open|tarfile|zipfile|file|urlib2|'
-                       'socket|fork|kill|getattr|setattr|delattr|execfile|'
-                       '__import__|path|modules|spawn|popen2|commands|input|'
-                       'get|post|(commands\.)*getoutput|(commands\.)*getoutput'
-                       '|(commands\.)*getstatus|(commands\.)*getstatusouput|'
-                       'compile|(cPickle\.)*load|(cPickle\.)*loads|'
-                       '(marshal\.)*load|(marshal\.)*loads|(os\.)*execl|'
-                       '(os\.)*execle|(os\.)*execlp|'
+        # SQL words, separated for use in other langs.
+        sql_words = ('(select|SELECT|insert|INSERT|where|WHERE|delete|DELETE|'
+                     'update|UPDATE|from|FROM|join|JOIN|like|LIKE|upper\s*\(|'
+                     'UPPER\s*\(|order\ by|ORDER\ BY|case|CASE|when|WHEN|then|'
+                     'THEN|else|ELSE|ltrim|LTRIM|rtrim|RTRIM|and|AND|SYSDATE|'
+                     'sysdate|VALUES|values|SMALLINT|smallint|VARCHAR|varchar'
+                     'DECLARE|declare|DATETIME|datetime|MONEY|money)')
+        preset_dict = {'java_sql': '\".*' + sql_words + '.*\"',
+                       # High priority danger words for Python
+                       'danger_noodle': '(subprocess|system|popen|exec|eval|'
+                       'pickle|shelve|yaml|sqlite3|pypyodbc|jsonpickle|urlib2|'
+                       'socket|fork|kill|execfile|__import__|path|spawn|popen2'
+                       '|commands|input|get|post|(commands\.)*getoutput|'
+                       '(commands\.)*getoutput|(commands\.)*getstatus|'
+                       '(commands\.)*getstatusouput|compile|(cPickle\.)*load|'
+                       '(cPickle\.)*loads|(marshal\.)*load|(marshal\.)*loads|'
+                       '(os\.)*execl|(os\.)*execle|(os\.)*execlp|'
                        '(os\.)*execlpe|(os\.)*execv|(os\.)*execve|'
                        '(os\.)*execvp|(os\.)*execvpe|(os\.)*popen|'
                        '(os\.)*popen2|(os\.)*popen3|(os\.)*popen4|'
                        '(os\.)*spawnl|(os\.)*spawnle|(os\.)*spawnlp|'
                        '(os\.)*spawnlpe|(os\.)*spawnv|(os\.)*spawnve|'
-                       '(os\.)*spawnvp|(os\.)*spawnvpe|(os\.)*startfile|'
-                       '(os\.)*system|(pickle\.)*load|(pickle\.)*loads|'
-                       '(popen2\.)*popen2|(popen2\.)*popen3|(popen2\.)*popen4'
-                       '|(shelve\.)*open|(subprocess\.)*call|'
-                       '(subprocess\.)*check_call|(subprocess\.)*check_output'
-                       '|(subprocess\.)*Popen|(yaml\.)*load)'}
+                       '(os\.)*spawnvp|(os\.)*spawnvpe|(os\.)*startfile'
+                       '|(os\.)*system|(pickle\.)*load|(pickle\.)*loads|'
+                       '(popen2\.)*popen2|(popen2\.)*popen3|(popen2\.)*popen4|'
+                       'shelve\.open|(subprocess\.)*call|'
+                       '(subprocess\.)*check_call|(subprocess\.)*check_output|'
+                       '(subprocess\.)*Popen|(yaml\.)*load|requests)',
+                       # Low priority danger words for Python
+                       'not_so_danger_noodle': '(logging|print|open|tarfile|'
+                       'zipfile|file|getattr|setattr|delattr)'}
 
         preset_json = {}
         json_filename = 'presets.json'
