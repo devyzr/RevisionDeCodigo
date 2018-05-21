@@ -148,7 +148,8 @@ class FindWord():
         locations = []
         for file in only_files:
             if self.ignore != ['']:
-                if any(bad_ext in file for bad_ext in self.ignore):
+                if any(bad_ext == file[-len(bad_ext):] for
+                        bad_ext in self.ignore):
                     continue
             base_loc = str(file)
             if(self.case_insensitive):
@@ -172,6 +173,7 @@ class FindWord():
             with open(file, 'r', encoding='latin-1') as o_file:
                 self.prev_line = 0
                 for line in o_file:
+                    unmodded_line = line
                     if(self.case_insensitive):
                         line = line.upper()
                     # A counter to find the line
@@ -181,7 +183,7 @@ class FindWord():
                         loc = base_loc + ':' + str(x)
                         locations.append(loc)
                         if(self.print_lines):
-                            self.print_results(loc, line, x)
+                            self.print_results(loc, unmodded_line, x)
 
                     # Check for regex matches
                     if(self.regex):
@@ -189,7 +191,7 @@ class FindWord():
                             loc = base_loc + ':' + str(x)
                             locations.append(loc)
                             if(self.print_lines):
-                                self.print_results(loc, line, x)
+                                self.print_results(loc, unmodded_line, x)
 
         return locations
 
