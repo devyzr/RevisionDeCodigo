@@ -160,7 +160,8 @@ class FindWord:
                 str_f = str(f)
                 # Check for extension if specified, if not we append the file
                 if extension:
-                    if extension in str_f:
+                    ext_len = len(extension)
+                    if extension == str_f[-ext_len:]:
                         only_files.append(f)
                 else:
                     only_files.append(f)
