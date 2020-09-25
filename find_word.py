@@ -8,7 +8,6 @@ from os.path import isfile, join
 
 
 class FindWord:
-
     def __init__(self):
         self.dirs = []
         self.word = ""
@@ -183,27 +182,29 @@ class FindWord:
         # file is the whole filename including directory
         locations = []
         for file in only_files:
+            # duplicate file in case we need to uppercase word,
+            # this avoids errors when opening file later on.
+            comp_file = str(file)
             if self.ignore != [""]:
                 if any(bad_ext == file[-len(bad_ext) :] for bad_ext in self.ignore):
                     continue
             base_loc = str(file)
             if self.case_insensitive:
-                file = file.upper()
+                comp_file = file.upper()
                 # Take out of method
                 self.filename = self.filename.upper()
                 self.word = self.word.upper()
             # Check if filename exists and if it's in file
-            if self.filename and self.filename in file:
-                # Won't add file to list if there is a word.
-                # This is to avoid duplicates. Hacky, I know.
-                if not self.word:
-                    # Split to only search filename.
-                    file_parts = file.split(os.sep)
-                    if self.filename in file_parts[-1]:
-                        locations.append(base_loc)
-            elif self.filename and self.word:
-                continue
-            # Check if the user queried for a word.
+            if self.filename and self.filename in comp_file:
+                # Split to only search filename.
+                file_parts = comp_file.split(os.sep)
+                if self.filename in file_parts[-1]:
+                    locations.append(base_loc)
+
+            # Check if user needs to find words in a specific file.
+            if self.word and self.filename:
+                if base_loc not in locations:
+                    continue
             x = 0
             with open(file, "r", encoding="latin-1") as o_file:
                 self.prev_line = 0
@@ -215,6 +216,8 @@ class FindWord:
                     x += 1
                     # Check if word exists and if it's in the line.
                     if self.word and self.word in line:
+                        if base_loc in locations:
+                            locations.remove(base_loc)
                         loc = base_loc + ":" + str(x)
                         locations.append(loc)
                         if self.print_lines:
@@ -227,6 +230,8 @@ class FindWord:
                             locations.append(loc)
                             if self.print_lines:
                                 self.print_results(loc, unmodded_line, x)
+                if self.filename and self.word and base_loc in locations:
+                    locations.remove(base_loc)
 
         return locations
 
