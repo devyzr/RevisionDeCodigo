@@ -44,7 +44,7 @@ optional arguments:
 ```
 
 #### Notes:
-Searching for words, filenames, regexes or regex presets is mutually exclusive. We can include a regex preset instead of a regex.
+Searching for words, regexes or regex presets is mutually exclusive. We can include a regex preset instead of a regex. The (tested) exception is words and files, now you can search for words in files that match a search query.
 
 **'--print_lines'** is really useful combined with the **'>'** or **'>>'** windows operators, allowing us to either write a file with the command's output as the content or append the output to an existing file, respectively.
 
